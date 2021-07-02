@@ -2,10 +2,12 @@ let button=document.getElementById("click");
 let city=document.getElementById("city");
 let apiKey="622007c222ccd98778aec320701a68db";
 let weatherData=document.getElementById("todayWeather");
-
-
+let fiveDayEl=document.getElementById("fiveDay");
+let storage=JSON.parse(localStorage.getItem("city"))||[];
 function start(){
 let cityVal=city.value;
+storage.push(cityVal)
+localStorage.setItem("city",JSON.stringify(storage))
 city.textContent="";
 console.log(cityVal)
 todayWeather(cityVal)
@@ -35,6 +37,7 @@ cityName.append(cityIcon);
 let lat = data.coord.lat;
 let lon = data.coord.lon;
 uvIndex(lat,lon);
+fiveDay(cityVal);
 } )
 }
 function uvIndex(lat,lon) {
@@ -50,6 +53,33 @@ weatherData.append(Index);
 }
 function fiveDay(cityName){
 fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}`)
+.then(response =>{
+    return response.json()
+}).then(data =>{
+    console.log(data);
+for (let i = 0; i < data.list.length; i++) {
+    const weather = data.list[i];
+if(weather.dt_txt.indexOf("09:00:00")!== -1){
+    console.log(weather);
+let card = document.createElement("div");
+card.setAttribute("class","card bg-primary text-white")
+let cardBody = document.createElement("div");
+cardBody.setAttribute("class","card-body");
+let date = document.createElement("h3");
+date.textContent=new Date(weather.dt_txt).toLocaleDateString()
+let image =document.createElement("img");
+image.setAttribute("src","http://openweathermap.org/img/w/"+weather.weather[0].icon+".png");
+let temp=document.createElement("p")
+temp.textContent="TEMP "+ weather.main.temp
+let humidity=document.createElement("p");
+humidity.textContent=weather.main.humidity
+cardBody.append(date,image,temp,humidity)
+card.append(cardBody)
+console.log(cardBody);
+fiveDayEl.append(card);
+}
+}
+})
 }
 
 
